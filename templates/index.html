@@ -1,0 +1,88 @@
+{% extends 'main.html' %}
+{% block title %}
+<title>Home</title>
+{% endblock title %}
+{% block body %}
+
+    <body>
+
+        <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+        
+        <div class="message_holder" style="margin-top: 30px;margin-bottom: 80px;">
+            {% for user in users %}
+            
+            <tr>
+                <td>{{ user.user_name }}</td>
+                <td></td>
+                <td>{{ user.message }}</td>
+                <td>{{ user.time }}</td>
+            </tr></br>
+          
+        {% endfor %}
+
+        </div><br>
+        
+    <form action="/index" method="POST">
+        
+        <input type="hidden" class="userid" name="user_id" value="{{current_user.id}}">
+        <input type="hidden" class="username"  name ="username" value="{{current_user.name}}" readonly>
+        
+     
+       
+            
+            <footer class="text-center text-white fixed-bottom" style="background-color: #21081a;">
+                <!-- Grid container -->
+                <div class="container p-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control message" placeholder="message" name="message" aria-label="Recipient's Messages" aria-describedby="button-addon2" required="required">
+                        <button class="btn btn-outline-secondary" type="submit" id="button-addon2"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+                <!-- Grid container -->
+              
+                <!-- Copyright -->
+                
+                <!-- Copyright -->
+              </footer>
+  
+      </form>
+ 
+   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+      <script type="text/javascript">
+        const queryParams = { userId: 123 };
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+     socket.on( 'connect', function() {
+       socket.emit( 'my event', {
+         data: 'User Connected'
+       } )
+       var form = $( 'form' ).on( 'submit', function( e ) {
+         e.preventDefault()
+         let user_id = $( 'input.userid' ).val()
+         let user_name = $( 'input.username' ).val()
+         let user_input = $( 'input.message' ).val()
+         var dt = new Date();
+         var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+         socket.emit( 'my event', {
+           user_name : user_name,
+           message : user_input,
+           time: time,
+            status:'online',
+            user_id:user_id
+         } )
+         $( 'input.message' ).val( '' ).focus()
+       } )
+     } )
+     socket.on( 'my response', function( msg ) {
+       console.log( msg )
+       if( typeof msg.user_name !== 'undefined' ) {
+         $( 'h3' ).remove()
+         $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.status+'</b> '+msg.user_name+'</b> '+msg.message+'</b> '+msg.time+'</div>' )
+       }
+     })
+
+     
+   </script>
+    {% endblock body %}
